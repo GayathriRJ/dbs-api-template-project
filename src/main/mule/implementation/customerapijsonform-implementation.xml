@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="get-customer" doc:id="cf4b7022-2b7d-48e9-bd69-82c5886e2345" >
+		<logger level="INFO" doc:name="Log-Start" doc:id="0d2fc1e3-e76c-4e6f-bd77-348218201473" message='#[%dw 2.0&#10;output application/json&#10;---&#10;&#10;{&#10;	"CorelationId" : "",&#10;	"FlowName" : "",&#10;	"ResponseTime" : now()&#10;}]'/>
+		<ee:transform doc:name="response payload">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+[
+  {
+    custid: 1,
+    name: "Rashmi",
+    phone: "9876545678"
+  }, 
+  {
+    custid: 2,
+    name: "Ninad",
+    phone: "9876545633"
+  }, 
+  {
+    custid: 3,
+    name: "Nilesh",
+    phone: "9876545945"
+  }
+]]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+		<logger level="INFO" doc:name="Log-End" doc:id="f40596a4-832d-4a9e-b039-c4b7e17c9ce9" message='#[%dw 2.0&#10;output application/json&#10;---&#10;" Response sent time - "++ now()]'/>
+	</flow>
+	<flow name="post-customer" doc:id="7cd03dd4-f406-4805-9126-f32448c0f95d" >
+		<logger level="INFO" doc:name="Log-Start" doc:id="e5cf1ebe-770a-43d6-b23d-f24bd8488815" message='#[%dw 2.0&#10;output application/json&#10;---&#10;" Request received time - "++ now()]'/>
+		<ee:transform doc:name="response payload">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "success"
+}]]></ee:set-payload>
+            </ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="endTime" ><![CDATA[%dw 2.0
+output application/java
+---
+now()]]></ee:set-variable>
+			</ee:variables>
+        </ee:transform>
+		<logger level="INFO" doc:name="Log-End" doc:id="6c8c4e21-20ff-4215-b99b-9f53b3011641" message='#[%dw 2.0&#10;output application/json&#10;---&#10;" Response sent time - "++ now()]'/>
+	</flow>
+	<flow name="get-customer-byCustId" doc:id="bdb54af5-9594-45cb-bbc8-60d68489f155" >
+		<logger level="INFO" doc:name="Log-Start" doc:id="08024564-d235-4b2f-8cef-86952a483c83" message='#[%dw 2.0&#10;output application/json&#10;---&#10;" Request received time - "++ now()]'/>
+		<ee:transform doc:name="get-uriparam-custid" doc:id="faf7b57e-7186-443a-8529-72d5434f1f3f">
+            <ee:message >
+				<ee:set-attributes ><![CDATA[attributes.uriParams.'custid']]></ee:set-attributes>
+			</ee:message>
+			<ee:variables>
+            </ee:variables>
+        </ee:transform>
+		<logger level="INFO" doc:name="log-backend-call-response" doc:id="4e5e0dec-8e99-423c-a187-c853f4362302" message="#[payload]"/>
+		<ee:transform doc:name="transform-backend-response">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  custid: 1,
+  name: "Rashmi",
+  phone: "9876545678"
+}]]></ee:set-payload>
+            </ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="end-time" ><![CDATA[now() as Date]]></ee:set-variable>
+			</ee:variables>
+        </ee:transform>
+		<logger level="INFO" doc:name="Log-End" doc:id="f463e544-872d-4501-a361-14329cf98c83" message='#[%dw 2.0&#10;output application/json&#10;---&#10;" Response sent time - "++ now()]'/>
+	</flow>
+</mule>

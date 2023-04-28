@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
+    <flow name="customerapijsonform-main">
+        <http:listener config-ref="HTTP_Listener_config" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <ee:transform doc:name="setCorelationId" doc:id="c65b30c4-1ab4-4f91-aa39-e9d143e541f4" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+attributes.headers.'x-root-correlation-id' default correlationId]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<apikit:router config-ref="customerapijsonform-config"/>
+    </flow>
+    <flow name="get:\customer:customerapijsonform-config">
+		<flow-ref doc:name="Flow Reference" doc:id="a941efdc-46f7-4b7a-9487-43c6f6fa391b" name="get-customer" />
+		<error-handler ref="errorHandler_Main" />
+    </flow>
+    <flow name="get:\customer\(custid):customerapijsonform-config">
+		<flow-ref doc:name="Flow Reference" doc:id="5bfe85e8-60cd-43e7-a17a-685c2cd26da1" name="get-customer-byCustId"/>
+		<error-handler ref="errorHandler_Main" />
+    </flow>
+    <flow name="post:\customer:application\json:customerapijsonform-config">
+		<flow-ref doc:name="Flow Reference" doc:id="d3c2af6a-de6d-477c-b5e8-7bd748e1a90b" name="post-customer"/>
+		<error-handler ref="errorHandler_Main" />
+    </flow>
+</mule>
